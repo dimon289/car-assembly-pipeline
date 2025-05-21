@@ -1,0 +1,48 @@
+name: Car Assembly Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create build folder
+        run: mkdir build
+
+      - name: Create car.txt with parts
+        run: |
+          cd build
+          echo "Кузов" >> car.txt
+          echo "Двигун" >> car.txt
+          echo "Колеса" >> car.txt
+          echo "Руль" >> car.txt
+          echo "Двері" >> car.txt
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: car-build
+          path: build/
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: car-build
+
+      - name: Test for car parts
+        run: |
+          grep "Кузов" car.txt
+          grep "Двигун" car.txt
+          grep "Колеса" car.txt
+          grep "Руль" car.txt
+          grep "Двері" car.txt
